@@ -14,7 +14,7 @@ namespace Drones.Models
     {
         [Key]
         public int DroneId { get; set; }
-        [MaxLength(100)]
+        [Required, MaxLength(100)]
         public string SN { get; set; }
         [Required]
         public DroneModel Model { get; set; }

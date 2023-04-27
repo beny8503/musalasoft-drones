@@ -11,8 +11,9 @@ namespace Drones.Context
     {
         public DronesContext(DbContextOptions options): base(options)
         {
-            var folder = Environment.SpecialFolder.LocalApplicationData;
-            var path = Environment.GetFolderPath(folder);
+            //var folder = Environment.SpecialFolder.LocalApplicationData;
+            var path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            //var path = Environment.GetFolderPath(folder);
             DbPath = System.IO.Path.Join(path, "drones.db");
         }
 
