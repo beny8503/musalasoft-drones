@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Drones.Context;
+using Drones.Services;
 
 namespace Drones
 {
@@ -41,6 +42,7 @@ namespace Drones
                     },
                 });
             });
+            services.AddScoped<IDroneService, DroneService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
