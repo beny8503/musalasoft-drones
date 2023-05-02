@@ -42,7 +42,9 @@ namespace Drones
                     },
                 });
             });
+            services.AddAutoMapper(typeof(Startup));
             services.AddScoped<IDroneService, DroneService>();
+            services.AddScoped<IMedicationService, MedicationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

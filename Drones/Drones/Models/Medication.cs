@@ -14,10 +14,12 @@ namespace Drones.Models
         [Key]
         public int MedicationId { get; set; }
         [Required]
+        [RegularExpression(@"^[a-zA-Z0-9\-_]+$")]
         public string Name { get; set; }
         [Required]
         public int Weight { get; set; }
         [Required]
+        [RegularExpression(@"^[A-Z0-9_]+$")]
         public string Code { get; set; }
         /// <summary>
         /// Store the image as a base64string

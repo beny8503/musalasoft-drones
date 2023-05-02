@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Drones.Context;
 using Drones.Models;
 using Drones.Services;
+using Drones.DTOs;
 
 namespace Drones.Controllers
 {
@@ -23,13 +24,13 @@ namespace Drones.Controllers
 
         // GET: api/Drones
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Drone>>> GetDrones()
+        public async Task<ActionResult<IEnumerable<GetDroneDto>>> GetDrones()
         {
             return Ok(await _droneService.GetAllDrones() );
         }
 
         [HttpGet("Available")]
-        public async Task<ActionResult<IEnumerable<Drone>>> GetAvailableDrones()
+        public async Task<ActionResult<IEnumerable<GetDroneDto>>> GetAvailableDrones()
         {
             return Ok(await _droneService.GetAvailableDrones());
         }
@@ -42,32 +43,52 @@ namespace Drones.Controllers
 
         // GET: api/Drones/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Drone>> GetDrone(int id)
+        public async Task<ActionResult<GetDroneDto>> GetDrone(int id)
         {
             return Ok(await _droneService.GetDrone(id));
+        }
+
+        [HttpGet("{id}/Battery")]
+        public async Task<ActionResult<int>> GetDroneBatteryLevel(int id)
+        {
+            return Ok(await _droneService.GetDroneBatteryLevel(id));
         }
 
         // PUT: api/Drones/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<ActionResult<Drone>> PutDrone(int id, Drone drone)
+        public async Task<ActionResult<GetDroneDto>> PutDrone(int id, GetDroneDto drone)
         {
             if (id != drone.DroneId)
             {
                 return BadRequest();
             }
 
-            return Ok(await _droneService.UpdDrone(id, drone));
+            var respDrone = await _droneService.UpdDrone(id, drone);
+            if (respDrone == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(respDrone);
         }
 
         // POST: api/Drones
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Drone>> PostDrone(Drone drone)
+        public async Task<ActionResult<GetDroneDto>> PostDrone(AddDroneDto drone)
         {
-            await _droneService.AddDrone(drone);
+            GetDroneDto resultDrone = await _droneService.AddDrone(drone);
 
-            return CreatedAtAction("GetDrone", new { id = drone.DroneId }, drone);
+            return CreatedAtAction("GetDrone", new { id = resultDrone.DroneId }, resultDrone);
+        }
+
+        [HttpPost("{id}")]
+        public async Task<ActionResult<Drone>> PostMedication(int id, GetMedicationDto medication)
+        {
+            Drone resultDrone = await _droneService.LoadDrone(id, medication);
+
+            return Ok(resultDrone);
         }
 
         // DELETE: api/Drones/5
@@ -79,7 +100,7 @@ namespace Drones.Controllers
             {
                 return NotFound();
             }
-            return NoContent();
+            return Ok();
         }
     }
 }
