@@ -23,31 +23,40 @@ namespace Drones.Controllers
             _medicationService = medicationService;
         }
 
-        // GET: api/Medications
+        /// <summary>
+        /// Gets a list of medication items
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetMedicationDto>>> GetMedications()
+        public async Task<ActionResult<ServiceResponse<IEnumerable<GetMedicationDto>>>> GetMedications()
         {
             return Ok(await _medicationService.GetAllMedications());
         }
 
-        // GET: api/Medications/5
+        /// <summary>
+        /// Gets a medication item for the given medication item id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<GetMedicationDto>> GetMedication(int id)
         {
-            var medication = await _medicationService.GetMedication(id);
-
-            if (medication == null)
+            var response = await _medicationService.GetMedication(id);
+            if (response.Data == null)
             {
-                return NotFound();
+                return NotFound(response);
             }
-
-            return medication;
+            return Ok(response);
         }
 
-        // PUT: api/Medications/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Updates the medication item data for the given medication item id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="medication"></param>
+        /// <returns></returns>
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMedication(int id, GetMedicationDto medication)
+        public async Task<ActionResult<ServiceResponse<GetMedicationDto>>> PutMedication(int id, GetMedicationDto medication)
         {
             if (id != medication.MedicationId)
             {
@@ -55,35 +64,42 @@ namespace Drones.Controllers
             }
 
             var respMedication = await _medicationService.UpdMedication(id, medication);
-            if (respMedication == null)
+            if (respMedication.Data == null)
             {
-                return NotFound();
+                return NotFound(respMedication);
             }
 
             return Ok(respMedication);
         }
 
-        // POST: api/Medications
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Add a new medication item.
+        /// </summary>
+        /// <param name="medication"></param>
+        /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<GetMedicationDto>> PostMedication(AddMedicationDto medication)
+        public async Task<ActionResult<ServiceResponse<GetMedicationDto>>> PostMedication(AddMedicationDto medication)
         {
            
-            GetMedicationDto newMedication = await _medicationService.AddMedication(medication);
+            var response = await _medicationService.AddMedication(medication);
 
-            return CreatedAtAction("GetMedication", new { id = newMedication.MedicationId }, newMedication);
+            return CreatedAtAction("GetMedication", new { id = response.Data.MedicationId }, response);
         }
 
-        // DELETE: api/Medications/5
+        /// <summary>
+        /// Deletes a medication item.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMedication(int id)
+        public async Task<ActionResult<ServiceResponse<bool>>> DeleteMedication(int id)
         {
             var result = await _medicationService.DelMedication(id);
-            if (!result)
+            if (!result.Data)
             {
-                return NotFound();
+                return NotFound(result);
             }
-            return Ok();
+            return Ok(result);
         }
 
     }

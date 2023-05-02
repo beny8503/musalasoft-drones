@@ -9,14 +9,14 @@ namespace Drones.Services
 {
     public interface IMedicationService
     {
-        public Task<IEnumerable<GetMedicationDto>> GetAllMedications();
+        public Task<ServiceResponse<IEnumerable<GetMedicationDto>>> GetAllMedications();
 
-        public Task<GetMedicationDto> GetMedication(int id);
+        public Task<ServiceResponse<GetMedicationDto>> GetMedication(int id);
 
-        public Task<GetMedicationDto> UpdMedication(int id, GetMedicationDto medication);
+        public Task<ServiceResponse<GetMedicationDto>> UpdMedication(int id, GetMedicationDto medication);
 
-        public Task<GetMedicationDto> AddMedication(AddMedicationDto medication);
+        public Task<ServiceResponse<GetMedicationDto>> AddMedication(AddMedicationDto medication);
 
-        public Task<bool> DelMedication(int id);
+        public Task<ServiceResponse<bool>> DelMedication(int id);
     }
 }

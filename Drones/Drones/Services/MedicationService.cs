@@ -21,81 +21,119 @@ namespace Drones.Services
             _mapper = mapper;
         }
 
-        public async Task<GetMedicationDto> AddMedication(AddMedicationDto medication)
+        public async Task<ServiceResponse<GetMedicationDto>> AddMedication(AddMedicationDto medication)
         {
-            Medication newMedication = _mapper.Map<Medication>(medication);
-            await _droneContext.Medications.AddAsync(newMedication);
-            await _droneContext.SaveChangesAsync();
-
-            return _mapper.Map<GetMedicationDto>(newMedication);
+            var response = new ServiceResponse<GetMedicationDto>();
+            try
+            {
+                Medication newMedication = _mapper.Map<Medication>(medication);
+                _droneContext.Medications.Add(newMedication);
+                _droneContext.Entry(newMedication).State = EntityState.Added;
+                await _droneContext.SaveChangesAsync();
+                response.Data = _mapper.Map<GetMedicationDto>(newMedication);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+            return response;
         }
 
-        public async Task<bool> DelMedication(int id)
+        public async Task<ServiceResponse<bool>> DelMedication(int id)
         {
+            var response = new ServiceResponse<bool>();
             var medication = await _droneContext.Medications.FindAsync(id);
             if (medication == null)
             {
-                return false;
+                response.Data = false;
+                response.Success = false;
+                response.Message = "Medication item not found.";
             }
-
-            _droneContext.Medications.Remove(medication);
-            await _droneContext.SaveChangesAsync();
-
-            return true;
+            else
+            {
+                try
+                {
+                    _droneContext.Medications.Remove(medication);
+                    await _droneContext.SaveChangesAsync();
+                    response.Data = true;
+                    response.Message = "Medication item successfully removed.";
+                }
+                catch (Exception ex)
+                {
+                    response.Success = false;
+                    response.Message = ex.Message;
+                }
+            }
+            return response;
         }
 
-        public async Task<IEnumerable<GetMedicationDto>> GetAllMedications()
+        public async Task<ServiceResponse<IEnumerable<GetMedicationDto>>> GetAllMedications()
         {
-            return await _droneContext.Medications.Select(m => _mapper.Map<GetMedicationDto>(m)).ToListAsync();
+            var response = new ServiceResponse<IEnumerable<GetMedicationDto>>();
+            response.Data = await _droneContext.Medications.Select(m => _mapper.Map<GetMedicationDto>(m)).ToListAsync();
+            return response;
         }
 
-        public async Task<GetMedicationDto> GetMedication(int id)
+        public async Task<ServiceResponse<GetMedicationDto>> GetMedication(int id)
         {
-            return _mapper.Map<GetMedicationDto>(await _droneContext.Medications.FindAsync(id));
+            var response = new ServiceResponse<GetMedicationDto>();
+            response.Data = _mapper.Map<GetMedicationDto>(await _droneContext.Medications.FindAsync(id));
+            return response;
         }
 
-        public async Task<GetMedicationDto> UpdMedication(int id, GetMedicationDto medication)
+        public async Task<ServiceResponse<GetMedicationDto>> UpdMedication(int id, GetMedicationDto medication)
         {
+            var response = new ServiceResponse<GetMedicationDto>();
             if (id != medication.MedicationId)
             {
-                return null;
+                response.Success = false;
+                response.Message = "Bad request";
             }
-
-            var updMedication = await _droneContext.Medications.FindAsync(medication.MedicationId);
-            if (updMedication == null)
+            else
             {
-                return null;
-            }
-            updMedication.Code = medication.Code;
-            updMedication.Name = medication.Name;
-            updMedication.Weight = updMedication.Weight;
-            updMedication.Image = updMedication.Image;
-            _droneContext.Entry(updMedication).State = EntityState.Modified;
-            try
-            {
-                await _droneContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-
-                if (!MedicationExists(id))
+                var updMedication = await _droneContext.Medications.FindAsync(medication.MedicationId);
+                if (updMedication == null)
                 {
-                    return null;
+                    response.Success = false;
+                    response.Message = "Medication item not found.";
                 }
                 else
                 {
-                    foreach (var entry in ex.Entries)
+                    updMedication.Code = medication.Code;
+                    updMedication.Name = medication.Name;
+                    updMedication.Weight = updMedication.Weight;
+                    updMedication.Image = updMedication.Image;
+                    _droneContext.Entry(updMedication).State = EntityState.Modified;
+                    try
                     {
-                        if (entry.Entity is Medication)
+                        await _droneContext.SaveChangesAsync();
+                        response.Data = _mapper.Map<GetMedicationDto>(updMedication);
+                    }
+                    catch (DbUpdateConcurrencyException ex)
+                    {
+
+                        if (!MedicationExists(id))
                         {
-                            var databaseValues = await entry.GetDatabaseValuesAsync();
-                            entry.OriginalValues.SetValues(databaseValues);
+                            response.Success = false;
+                            response.Message = "Medication item not found in database.";
+                        }
+                        else
+                        {
+                            foreach (var entry in ex.Entries)
+                            {
+                                if (entry.Entity is Medication)
+                                {
+                                    var databaseValues = await entry.GetDatabaseValuesAsync();
+                                    entry.OriginalValues.SetValues(databaseValues);
+                                    response.Data = _mapper.Map<GetMedicationDto>(entry);
+                                }
+                            }
                         }
                     }
                 }
             }
-
-            return _mapper.Map<GetMedicationDto>(updMedication);
+            return response;
         }
         private bool MedicationExists(int id)
         {

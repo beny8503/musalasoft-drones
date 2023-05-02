@@ -45,6 +45,9 @@ namespace Drones
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<IDroneService, DroneService>();
             services.AddScoped<IMedicationService, MedicationService>();
+            services.AddScoped<DroneBatteryLogging>();
+            services.AddSingleton<DroneBatteryLoggingService>();
+            services.AddHostedService(provider => provider.GetRequiredService<DroneBatteryLoggingService>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

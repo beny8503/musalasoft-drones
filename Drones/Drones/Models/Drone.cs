@@ -12,6 +12,7 @@ namespace Drones.Models
     public enum DroneState { IDLE, LOADING, LOADED, DELIVERING, DELIVERED, RETURNING }
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum DroneModel { Lightweight, Middleweight, Cruiserweight, Heavyweight }
+
     [Table("Drones")]
     public class Drone
     {

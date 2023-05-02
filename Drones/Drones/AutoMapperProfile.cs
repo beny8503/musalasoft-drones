@@ -14,9 +14,13 @@ namespace Drones
         {
             CreateMap<Drone, GetDroneDto>();
             CreateMap<AddDroneDto, Drone>();
+            CreateMap<FullDroneDto, Drone>();
+            CreateMap<Drone, FullDroneDto>();
             CreateMap<Medication, GetMedicationDto>();
             CreateMap<GetMedicationDto, Medication>();
             CreateMap<AddMedicationDto, Medication>();
+            CreateMap<AddMedicationDto, GetMedicationDto>();
+            CreateMap<GetMedicationDto, AddMedicationDto>();
         }
     }
 }
